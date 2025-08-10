@@ -1,0 +1,16 @@
+{
+    "name": "ikeda/php-captcha-for-recaptcha-v3",
+    "description": "PHP Captcha for Google reCAPTCHA v3",
+    "autoload": {
+        "psr-4": {
+            "Ikeda\\PhpCaptchaForRecaptchaV3\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Youhey",
+            "email": "youhey.ikeda@gmail.com"
+        }
+    ],
+    "require": {}
+}
