@@ -4,24 +4,40 @@ on: [push]
 
 jobs:
   test:
-    name: Test
-
-    runs-on: ubuntu-latest
-
+    name: PHP ${{ matrix.php }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        php-version: ['8.3', '8.4']
+        os: [ubuntu-latest]
+        php: ['8.3', '8.4']
+        include:
+          - os: ubuntu-latest
+            php: '8.4'
+            experimental: true
+    continue-on-error: ${{ matrix.experimental || false }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup PHP
-        uses: php-actions/composer@v6 # or alternative dependency management
+        uses: shivammathur/setup-php@v2
         with:
-          php_version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.php }}
+          extensions: mbstring
+          coverage: none
+          tools: composer
 
-      - name: PHPUnit tests
-        uses: php-actions/phpunit@v4
+      - name: Cache Composer
+        uses: actions/cache@v4
         with:
-          php_version: ${{ matrix.php-versions }}
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-${{ matrix.php }}-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --colors=always
