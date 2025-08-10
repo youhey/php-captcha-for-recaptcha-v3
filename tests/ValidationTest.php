@@ -12,21 +12,21 @@ use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use PiCaptcha\Captcha;
+use PiCaptcha\ValidationException;
 use ReCaptcha\RequestMethod;
 
-#[CoversMethod(Captcha::class, 'verify')]
-class VerificationTest extends TestCase
+#[CoversMethod(Captcha::class, 'validate')]
+class ValidationTest extends TestCase
 {
     #[Test]
-    public function testVerify(): void
+    public function testValidate(): void
     {
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true}');
 
-        $result = $captcha->verify(token: 'token', requestMethod: $method);
-
-        self::assertTrue($result);
+        $captcha->validate(token: 'token', requestMethod: $method);
+        self::assertTrue(true);
     }
 
     #[Test]
@@ -36,20 +36,20 @@ class VerificationTest extends TestCase
 
         $method = $this->getMockRequestMethod('{"success": true, "score": "0.9"}');
 
-        $result = $captcha->verify(token: 'token', score: 0.5, requestMethod: $method);
-
-        self::assertTrue($result);
+        $captcha->validate(token: 'token', score: 0.5, requestMethod: $method);
+        self::assertTrue(true);
     }
 
     #[Test]
     public function testBelowScoreThreshold(): void
     {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('The user failed the CAPTCHA test. Error codes (score-threshold-not-met)');
+
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true, "score": "0.1"}');
-        $result = $captcha->verify(token: 'token', score: 0.5, requestMethod: $method);
-
-        self::assertFalse($result);
+        $captcha->validate(token: 'token', score: 0.5, requestMethod: $method);
     }
 
     #[Test]
@@ -58,20 +58,20 @@ class VerificationTest extends TestCase
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true, "action": "action/hoge"}');
-        $result = $captcha->verify(token: 'token', action:'action/hoge', requestMethod: $method);
-
-        self::assertTrue($result);
+        $captcha->validate(token: 'token', action:'action/hoge', requestMethod: $method);
+        self::assertTrue(true);
     }
 
     #[Test]
     public function testActionMismatch(): void
     {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('The user failed the CAPTCHA test. Error codes (action-mismatch)');
+
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true, "action": "action/hoge"}');
-        $result = $captcha->verify(token: 'token', action: 'action/foobar', requestMethod: $method);
-
-        self::assertFalse($result);
+        $captcha->validate(token: 'token', action: 'action/foobar', requestMethod: $method);
     }
 
     #[Test]
@@ -80,20 +80,20 @@ class VerificationTest extends TestCase
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true, "hostname": "hostname.hoge"}');
-        $result = $captcha->verify(token: 'token', hostname:'hostname.hoge', requestMethod: $method);
-
-        self::assertTrue($result);
+        $captcha->validate(token: 'token', hostname:'hostname.hoge', requestMethod: $method);
+        self::assertTrue(true);
     }
 
     #[Test]
     public function testHostnameMismatch(): void
     {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('The user failed the CAPTCHA test. Error codes (hostname-mismatch)');
+
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true, "hostname": "hostname.hoge"}');
-        $result = $captcha->verify(token: 'token', hostname: 'hostname.foobar', requestMethod: $method);
-
-        self::assertFalse($result);
+        $captcha->validate(token: 'token', hostname: 'hostname.foobar', requestMethod: $method);
     }
 
     /**

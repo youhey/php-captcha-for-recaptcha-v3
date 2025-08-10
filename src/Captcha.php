@@ -31,35 +31,60 @@ class Captcha
     }
 
     /**
+     * reCAPTCHA site Validation
+     *
+     * @param string $token The user response token
+     * @param string|null $action Expected action
+     * @param string|null $clientIp Expected end user's IP address
+     * @param float|null $score Expected score threshold
+     * @param string|null $hostname Expected hostname
+     * @param RequestMethod $requestMethod Expected method used to send the request
+     *
+     * @return void
+     *
+     * @throws ValidationException
+     */
+    public function validate(string $token, ?string $clientIp = null, ?string $action = null, ?float $score = null, ?string $hostname = null, RequestMethod $requestMethod = new Post()): void
+    {
+        $result = $this->exec(token: $token, clientIp: $clientIp, action: $action, score: $score, hostname: $hostname, requestMethod: $requestMethod);
+
+        if ($result->isSuccess()) {
+            return;
+        }
+
+        throw new ValidationException(errorCodes: $result->getErrorCodes(), hostname: $result->getHostname(), timestamp: $result->getChallengeTs(), score: $result->getScore(), action: $result->getAction());
+    }
+
+    /**
      * reCAPTCHA site Verification
      *
      * @param string $token The user response token
      * @param string|null $action Expected action
      * @param string|null $clientIp Expected end user's IP address
-     * @param float|null $threshold Expected threshold
+     * @param float|null $score Expected score threshold
      * @param string|null $hostname Expected hostname
      * @param RequestMethod $requestMethod Expected method used to send the request
      *
      * @return bool
      */
-    public function verify(string $token, ?string $clientIp = null, ?string $action = null, ?float $threshold = null, ?string $hostname = null, RequestMethod $requestMethod = new Post()): bool
+    public function verify(string $token, ?string $clientIp = null, ?string $action = null, ?float $score= null, ?string $hostname = null, RequestMethod $requestMethod = new Post()): bool
     {
-        return $this->exec(token: $token, clientIp: $clientIp, action: $action, threshold: $threshold, hostname: $hostname, requestMethod: $requestMethod)->isSuccess();
+        return $this->exec(token: $token, clientIp: $clientIp, action: $action, score: $score, hostname: $hostname, requestMethod: $requestMethod)->isSuccess();
     }
 
     /**
-     * Call the reCAPTCHA site-verify API
+     * Calls the reCAPTCHA site-verify API
      *
      * @param string $token The user response token
      * @param string|null $action Expected action
      * @param string|null $clientIp Expected end user's IP address
-     * @param float|null $threshold Expected threshold
+     * @param float|null $score Expected score threshold
      * @param string|null $hostname Expected hostname
      * @param RequestMethod $requestMethod  Expected method used to send the request
      *
      * @return Response
      */
-    private function exec(string $token, ?string $clientIp, ?string $action, ?float $threshold, ?string $hostname, RequestMethod $requestMethod): Response
+    private function exec(string $token, ?string $clientIp, ?string $action, ?float $score, ?string $hostname, RequestMethod $requestMethod): Response
     {
         $recaptcha = new ReCaptcha($this->secret, $requestMethod);
 
@@ -69,8 +94,8 @@ class Captcha
         if (! is_null($action)) {
             $recaptcha->setExpectedAction($action);
         }
-        if (! is_null($threshold)) {
-            $recaptcha->setScoreThreshold($threshold);
+        if (! is_null($score)) {
+            $recaptcha->setScoreThreshold($score);
         }
 
         return $recaptcha->verify($token, $clientIp);

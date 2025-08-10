@@ -8,12 +8,12 @@ declare(strict_types=1);
 
 namespace PiCaptcha\Tests;
 
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Test;
 use PiCaptcha\Captcha;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(Captcha::class)]
+#[CoversMethod(Captcha::class, 'js')]
 class JavascriptTest extends TestCase
 {
     #[Test]
@@ -21,7 +21,7 @@ class JavascriptTest extends TestCase
     {
         $result = Captcha::js('SITE_KEY');
 
-        self::assertStringContainsString('<script src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>', $result);
+        self::assertEquals('<script src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>', $result);
     }
 
     #[Test]
@@ -29,7 +29,7 @@ class JavascriptTest extends TestCase
     {
         $result = Captcha::js(siteKey: 'SITE_KEY', async: true);
 
-        self::assertStringContainsString('<script async src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>', $result);
+        self::assertEquals('<script async src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>', $result);
     }
 
     #[Test]
@@ -37,7 +37,7 @@ class JavascriptTest extends TestCase
     {
         $result = Captcha::js(siteKey: 'SITE_KEY', defer: true);
 
-        self::assertStringContainsString('<script defer src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>', $result);
+        self::assertEquals('<script defer src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>', $result);
     }
 
     #[Test]
@@ -45,7 +45,7 @@ class JavascriptTest extends TestCase
     {
         $result = Captcha::js(siteKey: 'SITE_KEY', async: true, defer: true);
 
-        self::assertStringContainsString('<script async defer src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>', $result);
+        self::assertEquals('<script async defer src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>', $result);
     }
 
     #[Test]
@@ -53,6 +53,6 @@ class JavascriptTest extends TestCase
     {
         $result = Captcha::js(siteKey: 'SITE_KEY', module: true);
 
-        self::assertStringContainsString('<script type="module" src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>', $result);
+        self::assertEquals('<script type="module" src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>', $result);
     }
 }
