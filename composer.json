@@ -7,6 +7,7 @@
             "email": "youhey.ikeda@gmail.com"
         }
     ],
+    "license": "proprietary",
 
     "require": {
         "php": ">=8.3",
