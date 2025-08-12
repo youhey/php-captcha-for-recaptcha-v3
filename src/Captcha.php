@@ -11,7 +11,6 @@ namespace PiCaptcha;
 use ReCaptcha\ReCaptcha;
 use ReCaptcha\RequestMethod;
 use ReCaptcha\RequestMethod\Post;
-use ReCaptcha\Response;
 
 class Captcha
 {
@@ -52,7 +51,7 @@ class Captcha
             return;
         }
 
-        throw new ValidationException(errorCodes: $result->getErrorCodes(), hostname: $result->getHostname(), timestamp: $result->getChallengeTs(), score: $result->getScore(), action: $result->getAction());
+        throw new ValidationException($result);
     }
 
     /**
@@ -65,11 +64,11 @@ class Captcha
      * @param string|null $hostname Expected hostname
      * @param RequestMethod $requestMethod Expected method used to send the request
      *
-     * @return bool
+     * @return Result
      */
-    public function verify(string $token, ?string $clientIp = null, ?string $action = null, ?float $score= null, ?string $hostname = null, RequestMethod $requestMethod = new Post()): bool
+    public function verify(string $token, ?string $clientIp = null, ?string $action = null, ?float $score= null, ?string $hostname = null, RequestMethod $requestMethod = new Post()): Result
     {
-        return $this->exec(token: $token, clientIp: $clientIp, action: $action, score: $score, hostname: $hostname, requestMethod: $requestMethod)->isSuccess();
+        return $this->exec(token: $token, clientIp: $clientIp, action: $action, score: $score, hostname: $hostname, requestMethod: $requestMethod);
     }
 
     /**
@@ -82,9 +81,9 @@ class Captcha
      * @param string|null $hostname Expected hostname
      * @param RequestMethod $requestMethod  Expected method used to send the request
      *
-     * @return Response
+     * @return Result
      */
-    private function exec(string $token, ?string $clientIp, ?string $action, ?float $score, ?string $hostname, RequestMethod $requestMethod): Response
+    private function exec(string $token, ?string $clientIp, ?string $action, ?float $score, ?string $hostname, RequestMethod $requestMethod): Result
     {
         $recaptcha = new ReCaptcha($this->secret, $requestMethod);
 
@@ -98,7 +97,9 @@ class Captcha
             $recaptcha->setScoreThreshold($score);
         }
 
-        return $recaptcha->verify($token, $clientIp);
+        $response = $recaptcha->verify($token, $clientIp);
+
+        return new Result($response->isSuccess(), $response->getErrorCodes(), $response->getHostname(), $response->getChallengeTs(), $response->getScore(), $response->getAction());
     }
 
     /**

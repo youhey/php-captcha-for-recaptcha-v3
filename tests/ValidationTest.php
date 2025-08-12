@@ -49,6 +49,7 @@ class ValidationTest extends TestCase
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true, "score": "0.1"}');
+
         $captcha->validate(token: 'token', score: 0.5, requestMethod: $method);
     }
 
@@ -58,6 +59,7 @@ class ValidationTest extends TestCase
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true, "action": "action/hoge"}');
+
         $captcha->validate(token: 'token', action:'action/hoge', requestMethod: $method);
         self::assertTrue(true);
     }
@@ -71,6 +73,7 @@ class ValidationTest extends TestCase
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true, "action": "action/hoge"}');
+
         $captcha->validate(token: 'token', action: 'action/foobar', requestMethod: $method);
     }
 
@@ -80,6 +83,7 @@ class ValidationTest extends TestCase
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true, "hostname": "hostname.hoge"}');
+
         $captcha->validate(token: 'token', hostname:'hostname.hoge', requestMethod: $method);
         self::assertTrue(true);
     }
@@ -93,6 +97,7 @@ class ValidationTest extends TestCase
         $captcha = new Captcha('secret');
 
         $method = $this->getMockRequestMethod('{"success": true, "hostname": "hostname.hoge"}');
+
         $captcha->validate(token: 'token', hostname: 'hostname.foobar', requestMethod: $method);
     }
 

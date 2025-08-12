@@ -26,7 +26,7 @@ class VerificationTest extends TestCase
 
         $result = $captcha->verify(token: 'token', requestMethod: $method);
 
-        self::assertTrue($result);
+        self::assertTrue($result->isSuccess());
     }
 
     #[Test]
@@ -38,7 +38,8 @@ class VerificationTest extends TestCase
 
         $result = $captcha->verify(token: 'token', score: 0.5, requestMethod: $method);
 
-        self::assertTrue($result);
+        self::assertTrue($result->isSuccess());
+        self::assertEquals(0.9, $result->getScore());
     }
 
     #[Test]
@@ -49,7 +50,8 @@ class VerificationTest extends TestCase
         $method = $this->getMockRequestMethod('{"success": true, "score": "0.1"}');
         $result = $captcha->verify(token: 'token', score: 0.5, requestMethod: $method);
 
-        self::assertFalse($result);
+        self::assertFalse($result->isSuccess());
+        self::assertEquals(0.1, $result->getScore());
     }
 
     #[Test]
@@ -60,7 +62,8 @@ class VerificationTest extends TestCase
         $method = $this->getMockRequestMethod('{"success": true, "action": "action/hoge"}');
         $result = $captcha->verify(token: 'token', action:'action/hoge', requestMethod: $method);
 
-        self::assertTrue($result);
+        self::assertTrue($result->isSuccess());
+        self::assertEquals('action/hoge', $result->getAction());
     }
 
     #[Test]
@@ -68,10 +71,11 @@ class VerificationTest extends TestCase
     {
         $captcha = new Captcha('secret');
 
-        $method = $this->getMockRequestMethod('{"success": true, "action": "action/hoge"}');
-        $result = $captcha->verify(token: 'token', action: 'action/foobar', requestMethod: $method);
+        $method = $this->getMockRequestMethod('{"success": true, "action": "action/foobar"}');
+        $result = $captcha->verify(token: 'token', action: 'action/hoge', requestMethod: $method);
 
-        self::assertFalse($result);
+        self::assertFalse($result->isSuccess());
+        self::assertEquals('action/foobar', $result->getAction());
     }
 
     #[Test]
@@ -82,7 +86,8 @@ class VerificationTest extends TestCase
         $method = $this->getMockRequestMethod('{"success": true, "hostname": "hostname.hoge"}');
         $result = $captcha->verify(token: 'token', hostname:'hostname.hoge', requestMethod: $method);
 
-        self::assertTrue($result);
+        self::assertTrue($result->isSuccess());
+        self::assertEquals('hostname.hoge', $result->getHostname());
     }
 
     #[Test]
@@ -90,10 +95,11 @@ class VerificationTest extends TestCase
     {
         $captcha = new Captcha('secret');
 
-        $method = $this->getMockRequestMethod('{"success": true, "hostname": "hostname.hoge"}');
-        $result = $captcha->verify(token: 'token', hostname: 'hostname.foobar', requestMethod: $method);
+        $method = $this->getMockRequestMethod('{"success": true, "hostname": "hostname.foobar"}');
+        $result = $captcha->verify(token: 'token', hostname: 'hostname.hoge', requestMethod: $method);
 
-        self::assertFalse($result);
+        self::assertFalse($result->isSuccess());
+        self::assertEquals('hostname.foobar', $result->getHostname());
     }
 
     /**

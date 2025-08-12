@@ -9,80 +9,32 @@ declare(strict_types=1);
 namespace PiCaptcha;
 
 use Exception;
+
 class ValidationException extends Exception
 {
     /**
-     * Error code strings.
+     * The captcha result
      *
-     * @var list<string>
+     * @var Result
      */
-    private array $errorCodes;
-
-    /**
-     * The hostname of the site where the reCAPTCHA was solved.
-     *
-     * @var string|null
-     */
-    private ?string $hostname;
-
-    /**
-     * Timestamp of the challenge load
-     *
-     * @var int|null
-     */
-    private ?int $timestamp;
-
-    /**
-     * Score assigned to the request
-     *
-     * @var float|null
-     */
-    private ?float $score;
-
-    /**
-     * Action as specified by the page
-     *
-     * @var string|null
-     */
-    private ?string $action;
+    private Result $result;
 
     /**
      * Constructor
      *
-     * @param list<string> $errorCodes
-     * @param string|null $hostname
-     * @param string|null $timestamp
-     * @param float|null $score
-     * @param string|null $action
+     * @param Result $result
      */
-    public function __construct(array $errorCodes, ?string $hostname, ?string $timestamp, ?float $score, ?string $action)
+    public function __construct(Result $result)
     {
-        $this->errorCodes = array_map(static fn (string $errorCode): string => $errorCode, $errorCodes);
-
+        $this->result = $result;
 
         $message = 'The user failed the CAPTCHA test.';
 
-        if (count($this->errorCodes) > 0) {
-            $message .= ' Error codes (' . implode(', ', $this->errorCodes) . ')';
+        if (count($this->getErrorCodes()) > 0) {
+            $message .= ' Error codes (' . implode(', ', $this->getErrorCodes()) . ')';
         }
 
         parent::__construct($message);
-
-        if (! is_null($hostname) && ($hostname !== '')) {
-            $this->hostname = $hostname;
-        }
-
-        if (! is_null($timestamp) && ($timestamp !== '')) {
-            $this->timestamp = strtotime($timestamp);
-        }
-
-        if (! is_null($score)) {
-            $this->score = $score;
-        }
-
-        if (! is_null($action) && ($action !== '')) {
-            $this->action = $action;
-        }
     }
 
     /**
@@ -92,7 +44,7 @@ class ValidationException extends Exception
      */
     public function getErrorCodes(): array
     {
-        return $this->errorCodes;
+        return $this->result->getErrorCodes();
     }
 
     /**
@@ -102,7 +54,7 @@ class ValidationException extends Exception
      */
     public function getHostname(): ?string
     {
-        return $this->hostname;
+        return $this->result->getHostname();
     }
 
     /**
@@ -112,7 +64,7 @@ class ValidationException extends Exception
      */
     public function getTimestamp(): ?float
     {
-        return $this->timestamp;
+        return $this->result->getTimestamp();
     }
 
     /**
@@ -122,7 +74,7 @@ class ValidationException extends Exception
      */
     public function getScore(): ?float
     {
-        return $this->score;
+        return $this->result->getScore();
     }
 
     /**
@@ -132,6 +84,6 @@ class ValidationException extends Exception
      */
     public function getAction(): ?string
     {
-        return $this->action;
+        return $this->result->getAction();
     }
 }
