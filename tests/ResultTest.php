@@ -64,4 +64,16 @@ class ResultTest extends TestCase
         self::assertEquals(0.1, $exception->getScore());
         self::assertEquals('action.name', $exception->getAction());
     }
+
+    #[Test]
+    public function testSimpleResult(): void
+    {
+        $exception = new Result(success: true);
+
+        self::assertEquals([], $exception->getErrorCodes());
+        self::assertNull($exception->getHostname());
+        self::assertNull($exception->getTimestamp());
+        self::assertNull($exception->getScore());
+        self::assertNull($exception->getAction());
+    }
 }

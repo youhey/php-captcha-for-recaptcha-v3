@@ -29,28 +29,28 @@ class Result
      *
      * @var string|null
      */
-    private ?string $hostname;
+    private ?string $hostname = null;
 
     /**
      * Timestamp of the challenge load
      *
      * @var int|null
      */
-    private ?int $timestamp;
+    private ?int $timestamp = null;
 
     /**
      * Score assigned to the request
      *
      * @var float|null
      */
-    private ?float $score;
+    private ?float $score = null;
 
     /**
      * Action as specified by the page
      *
      * @var string|null
      */
-    private ?string $action;
+    private ?string $action = null;
 
     /**
      * Constructor
@@ -62,7 +62,7 @@ class Result
      * @param float|null $score
      * @param string|null $action
      */
-    public function __construct(bool $success, array $errorCodes, ?string $hostname, ?string $timestamp, ?float $score, ?string $action)
+    public function __construct(bool $success, array $errorCodes = [], ?string $hostname = null, ?string $timestamp = null, ?float $score = null, ?string $action = null)
     {
         $this->success = $success;
 
